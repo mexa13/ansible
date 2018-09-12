@@ -1,0 +1,27 @@
+---
+- name: "Copy keys to host"
+  hosts: gcloud-hosts
+  vars:
+    users:
+    -  "user1"
+    -  "user2"
+  tasks:
+  - name: "Create user accounts"
+    become: true
+    user:
+      name: "{{ item }}"
+      groups: "admin,www-data"
+    with_items: "{{ users }}"
+  - name: "Add authorized keys"
+    become: true
+    authorized_key:
+      user: "{{ item }}"
+      key: "{{ lookup('file', 'files/'+ item + '.key.pub') }}"
+    with_items: "{{ users }}"
+  - name: "Allow admin users to sudo without a password"
+    become: true
+    lineinfile:
+      dest: "/etc/sudoers"
+      state: "present"
+      regexp: "^%admin"
+      line: "%admin ALL=(ALL) NOPASSWD: ALL"
