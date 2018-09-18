@@ -1,0 +1,54 @@
+---
+- hosts: skc-dns
+  #vars:
+  #  ip:
+  #  - "<ip>"
+  #  - "<ip>"
+  #  host:
+  #  - "www"
+  #  - "www1"
+  tasks:
+  # - name: "1" 
+  #   lineinfile:
+  #         path: /tmp/testfile
+  #         line: '192.168.1.99 foo.lab.net foo1'
+  #         create: yes
+   - name: "2 Add line" 
+     become: yes
+     lineinfile:
+           path: /etc/bind/db.file
+           line: "{{ item.host }} IN A {{ item.ip }}"
+           create: yes
+     with_items: #"{{ ip }}" 
+     - { ip: '<ip>', host: 'test1'}
+     - { ip: '<ip>', host: 'test2' }
+     - { ip: '<ip>', host: 'test3' }
+           #create: yes
+   #- name: "2.1 Delete line"
+   #  become: yes
+   #  lineinfile:
+   #        path: /etc/bind/db.testsk.local
+   #        line: "{{ item }}"
+   #        state: absent
+   #  with_items:
+      #- test1. IN A <ip>
+      #- test2. IN A <ip>
+      #- test3. IN A <ip>
+      #- test IN A <ip>
+      #- test IN A <ip>
+      #- test IN A <ip>
+   - name: "3" 
+     become: yes
+     lineinfile:
+           path: /etc/bind/db.file
+           line: "{{ item.ip }} IN PTR {{ item.host }}.testsk.local"
+         #  line: 151 IN PTR test.testsk.local
+     with_items: #"{{ ip }}" 
+     - { ip: '10', host: 'test1'}
+     - { ip: '11', host: 'test2' }
+     - { ip: '12', host: 'test3' }
+   - name: "4" 
+     become: yes
+     service:
+           name: bind9
+           state: restarted
